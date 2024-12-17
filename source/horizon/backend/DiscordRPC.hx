@@ -1,11 +1,7 @@
 package horizon.backend;
 
-#if cpp
 import hxdiscord_rpc.Discord;
 import hxdiscord_rpc.Types;
-#elseif hl
-import hashcord.Discord;
-#end
 import lime.app.Application;
 import sys.thread.Thread;
 
@@ -15,8 +11,8 @@ class DiscordRPC
 	public static var presence:DiscordRichPresence = DiscordRichPresence.create();
 
 	static inline final defaultID = "1226704469312409692";
-	static var thread:Thread;
 	static var handlers = DiscordEventHandlers.create();
+	@:unreflective private static var thread:Thread; // nuh uh
 
 	public static function init():Void
 	{

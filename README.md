@@ -35,7 +35,7 @@ haxelib run lime rebuild cpp -release
 
 ## Credits
 
-- [Cobalt Bar](https://cobaltbar.github.io) - Main Developer
+- [CCobaltDev](https://ccobaltdev.github.io) - Main Developer
 - [Plank](https://plankdev.carrd.co/) - Main Artist
 - crowplexus and nebulazorua - Alt+Enter cancel + F11 fullscreen
 - [superpowers04](https://github.com/superpowers04) - Safer FlxGame

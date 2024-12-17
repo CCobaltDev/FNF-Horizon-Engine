@@ -16,17 +16,17 @@ class Log
 		ogTrace = haxe.Log.trace;
 		haxe.Log.trace = hxTrace;
 
-		LogStyle.NORMAL.callback = (data) -> print(data, 'FLIXEL', 214);
-		LogStyle.WARNING.callback = (data) ->
+		LogStyle.NORMAL.onLog.add(data -> print(data, 'FLIXEL', 214));
+		LogStyle.WARNING.onLog.add(data ->
 		{
 			ErrorState.errs.push('FLIXEL WARN: $data');
 			print(data, 'FLIXEL WARN', 214);
-		}
-		LogStyle.ERROR.callback = (data) ->
+		});
+		LogStyle.ERROR.onLog.add(data ->
 		{
 			ErrorState.errs.push('FLIXEL ERROR: $data');
 			print(data, 'FLIXEL ERROR', 196);
-		}
+		});
 
 		if (Constants.verbose)
 			info('Logger Initialized');
