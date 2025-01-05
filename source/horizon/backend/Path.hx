@@ -108,7 +108,6 @@ private class PathInfo
 			bitmap.disposeImage();
 			bitmap.image.data = null;
 			bitmap.image = null;
-			bitmap.readable = true;
 		}
 
 		var graphic = FlxGraphic.fromBitmapData(bitmap, false, cacheKey);

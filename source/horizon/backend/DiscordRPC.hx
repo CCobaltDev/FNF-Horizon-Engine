@@ -8,10 +8,10 @@ import sys.thread.Thread;
 class DiscordRPC
 {
 	public static var rpcID(default, set) = defaultID;
-	public static var presence:DiscordRichPresence = DiscordRichPresence.create();
+	public static var presence:DiscordRichPresence = new DiscordRichPresence();
 
 	static inline final defaultID = "1226704469312409692";
-	static var handlers = DiscordEventHandlers.create();
+	static var handlers = new DiscordEventHandlers();
 	@:unreflective private static var thread:Thread; // nuh uh
 
 	public static function init():Void
@@ -35,7 +35,7 @@ class DiscordRPC
 			Log.info('Discord RPC Initialized');
 		}
 
-		Discord.Initialize(cpp.ConstCharStar.fromString(rpcID), cpp.RawPointer.addressOf(handlers), 1, null);
+		Discord.Initialize(cpp.ConstCharStar.fromString(rpcID), cpp.RawPointer.addressOf(handlers), true, null);
 	}
 
 	public static function change(?details:String, ?state:String, ?smallImageKey:String, ?smallImageText:String, ?largeImageKey:String):Void
