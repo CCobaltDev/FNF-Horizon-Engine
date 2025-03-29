@@ -36,17 +36,22 @@
 				"branch": "dev"
 			},
 			{
-				"name": "tjson"
+				"name": "hxdiscord_rpc",
+				"link": "https://github.com/MAJigsaw77/hxdiscord_rpc"
+			},
+			{
+				"name": "hxvlc",
+				"link": "https://github.com/MAJigsaw77/hxvlc"
+			},
+			{
+				"name": "flixel-waveform",
+				"link": "https://github.com/ACrazyTown/flixel-waveform"
 			},
 			{
 				"name": "format"
 			},
 			{
 				"name": "hxp"
-			},
-			{
-				"name": "hxdiscord_rpc",
-				"link": "https://github.com/MAJigsaw77/hxdiscord_rpc"
 			}
 		]
 	}

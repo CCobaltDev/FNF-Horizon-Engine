@@ -1,10 +1,24 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 #if !macro
-import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
@@ -17,21 +31,11 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSignal;
 import flixel.util.FlxTimer;
 import horizon.backend.*;
-import horizon.backend.Conductor;
 import horizon.macros.*;
-import horizon.modding.Chart;
-import horizon.modding.Mod;
-import horizon.modding.Mods;
-import horizon.modding.Song;
-import horizon.modding.Week;
 import horizon.objects.*;
-import horizon.objects.game.*;
 import horizon.states.*;
 import horizon.util.*;
-import sys.FileSystem;
-import sys.io.File;
-import tjson.TJSON;
+#end
 
 using Lambda;
-#end
 using StringTools;

@@ -1,38 +1,40 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 package horizon.backend;
 
-@:structInit @:publicFields class TimeSignature
-{
-	var numerator:Float;
-	var denominator:Float;
-
-	static function fromString(sig:String):TimeSignature
-	{
-		if (!sig.contains('/'))
-			return {numerator: 4, denominator: 4}
-
-		var split = sig.trim().split('/');
-		return {numerator: Std.parseFloat(split[0].trim()), denominator: Std.parseFloat(split[1].trim())}
-	}
-}
+import sys.thread.Thread;
 
 @:publicFields
-class Conductor extends FlxBasic
+class Conductor
 {
 	static var bpm(default, set):Float;
-
-	static var beatLength:Float = -1;
-	static var stepLength:Float = -1;
-	static var measureLength:Float = -1;
-
-	static var time:Float = 0;
-	static var offset:Float = 0;
-	static var song(default, set):FlxSound;
-	static var timeSignature(default, set):TimeSignature = {numerator: 4, denominator: 4}
 
 	static var curStep:Int = 0;
 	static var curBeat:Int = 0;
 	static var curMeasure:Int = 0;
+
+	static var time:Float = 0;
+	static var song(default, set):FlxSound;
+	static var timeSignature(default, set):TimeSignature = TimeSignature.fromString('4/4');
 	static var switchToMusic:Bool = true;
+
+	static var stepLength:Float = -1;
+	static var beatLength:Float = -1;
+	static var measureLength:Float = -1;
 
 	static var stepSignal:FlxSignal;
 	static var beatSignal:FlxSignal;
@@ -41,100 +43,129 @@ class Conductor extends FlxBasic
 	private static var stepTracker:Float = 0;
 	private static var beatTracker:Float = 0;
 	private static var measureTracker:Float = 0;
-	private static var lastTime:Float = 0;
 
-	function new()
+	private static var lastTime:Float = 0;
+	private static var startTime:Float = 0;
+	@:unreflective private static var thread:Thread;
+
+	static function init()
 	{
-		super();
 		stepSignal = new FlxSignal();
 		beatSignal = new FlxSignal();
 		measureSignal = new FlxSignal();
 
-		if (Constants.verbose)
+		reset();
+
+		startTime = Sys.time();
+		thread = Thread.create(() -> while (true)
+		{
+			var dt = Sys.time() - startTime;
+
+			if (song != null)
+			{
+				if (song.playing)
+				{
+					if (song.time == lastTime)
+						time += dt * 1000;
+					else
+					{
+						time = song.time + Settings.songOffset;
+						lastTime = song.time;
+					}
+				}
+			}
+			else if (FlxG.sound.music != null && switchToMusic)
+			{
+				if (Globals.verboseLogging)
+					Log.info('Setting song to FlxG.sound.music');
+				song = FlxG.sound.music;
+			}
+
+			while (time >= stepTracker + stepLength)
+			{
+				stepTracker += stepLength;
+				curStep++;
+				stepSignal.dispatch();
+			}
+
+			while (time >= beatTracker + beatLength)
+			{
+				beatTracker += beatLength;
+				curBeat++;
+				beatSignal.dispatch();
+			}
+
+			while (time >= measureTracker + measureLength)
+			{
+				measureTracker += measureLength;
+				curMeasure++;
+				measureSignal.dispatch();
+			}
+
+			var remainingTime = (1 / 240) - (Sys.time() - startTime);
+			startTime = Sys.time();
+			if (remainingTime > 0)
+				Sys.sleep(remainingTime);
+		});
+
+		if (Globals.verboseLogging)
 			Log.info('Conductor Initialized');
 	}
 
-	override function update(elapsed:Float):Void
+	static function reset():Void
 	{
-		if (song != null)
-		{
-			if (song.playing)
-			{
-				if (song.time == lastTime)
-					time += elapsed * 1000;
-				else
-				{
-					time = song.time + offset;
-					lastTime = song.time;
-				}
-			}
-		}
-		else if (FlxG.sound.music != null && switchToMusic)
-		{
-			if (Constants.verbose)
-				Log.info('Song is null, setting to FlxG.sound.music');
-			song = FlxG.sound.music;
-		}
-
-		if (time > measureTracker + measureLength)
-		{
-			measureTracker += measureLength;
-			curMeasure++;
-			measureSignal.dispatch();
-		}
-
-		if (time > beatTracker + beatLength)
-		{
-			beatTracker += beatLength;
-			curBeat++;
-			beatSignal.dispatch();
-		}
-
-		if (time > stepTracker + stepLength)
-		{
-			stepTracker += stepLength;
-			curStep++;
-			stepSignal.dispatch();
-		}
-
-		super.update(elapsed);
-	}
-
-	@:noCompletion static function reset():Void
-	{
-		timeSignature = {numerator: 4, denominator: 4}
+		timeSignature = TimeSignature.fromString('4/4');
 		bpm = 100;
 		switchToMusic = true;
-		stepTracker = beatTracker = measureTracker = time = lastTime = 0;
-		curMeasure = curBeat = curStep = 0;
+		stepTracker = beatTracker = measureTracker = time = lastTime = startTime = 0;
+		curStep = curBeat = curMeasure = 0;
 		song = null;
+	}
+
+	static inline function recalculateLengths():Void
+	{
+		beatLength = 60 / bpm * 1000 * (4 / timeSignature.denominator);
+		stepLength = beatLength * .25;
+		measureLength = beatLength * timeSignature.numerator;
+	}
+
+	@:noCompletion static function set_bpm(val:Float):Float
+	{
+		bpm = val;
+		recalculateLengths();
+		return val;
 	}
 
 	@:noCompletion static function set_song(val:FlxSound):FlxSound
 	{
 		if (val != null)
-			val.onComplete = Conductor.reset;
-
+			val.onComplete = reset;
 		return song = val;
-	}
-
-	@:noCompletion static function set_bpm(val:Float):Float
-	{
-		recalculateLengths(val);
-		return bpm = val;
 	}
 
 	@:noCompletion static function set_timeSignature(val:TimeSignature):TimeSignature
 	{
 		timeSignature = val;
-		recalculateLengths(bpm);
+		recalculateLengths();
 		return val;
 	}
+}
 
-	@:noCompletion static inline function recalculateLengths(val:Float):Void
+@:structInit
+class TimeSignature
+{
+	public var numerator:Float;
+	public var denominator:Float;
+
+	public static function fromString(sig:String):TimeSignature
 	{
-		beatLength = 60 / val * 1000 * (4 / timeSignature.denominator);
-		stepLength = beatLength * .25;
-		measureLength = beatLength * timeSignature.numerator;
+		if (!sig.contains('/'))
+			return {numerator: 4, denominator: 4}
+
+		var split = sig.trim().split('/');
+		return {numerator: Std.parseFloat(split[0].trim()), denominator: Std.parseFloat(split[1].trim())}
 	}
+
+	public function toString(sig:TimeSignature):String
+		return '$numerator/$denominator';
 }

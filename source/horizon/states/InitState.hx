@@ -1,61 +1,50 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 package horizon.states;
 
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
-import haxe.Http;
 import haxe.ui.Toolkit;
 import haxe.ui.backend.flixel.CursorHelper;
-import horizon.util.ALConfig;
-import lime.app.Application;
 
 class InitState extends MusicState
 {
-	public static var onlineVer:String;
-	public static var shouldUpdate:Bool = false;
-
-	public override function create():Void
+	override function create():Void
 	{
-		#if windows
 		OSUtil.setDPIAware();
-		OSUtil.toggleWindowDarkMode();
-		#end
-
+		OSUtil.setWindowDarkMode(FlxG.stage.window.title, true);
 		Log.init();
 		SettingsManager.load();
-		Mods.load();
-		Path.loadAssets();
+		Assets.init();
+		Conductor.init();
 		Controls.init();
-		DiscordRPC.init();
-		Path.init();
-		Alphabet.init();
 
 		Toolkit.init();
 		Toolkit.theme = 'horizon';
 		CursorHelper.useCustomCursors = false;
-		if (Constants.verbose)
+		if (Globals.verboseLogging)
 			Log.info('HaxeUI Setup Complete');
 
 		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, 0xFF000000, .25, new FlxPoint(-1));
 		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, 0xFF000000, .25, new FlxPoint(1));
+		Globals.checkUpdate();
 
-		FlxG.plugins.addPlugin(new Conductor());
 		super.create();
 
-		var request = new Http('https://raw.githubusercontent.com/CCobaltDev/FNF-Horizon-Engine/main/.build');
-		request.onData = data ->
-		{
-			onlineVer = data.trim();
-			if (Std.parseFloat(onlineVer) > Std.parseFloat(Constants.horizonVer))
-			{
-				shouldUpdate = true;
-				Log.info('Update prompt will be displayed ($onlineVer > ${Constants.horizonVer})');
-			}
-			else
-				Log.info('Update prompt will not be displayed (${Constants.horizonVer} >= $onlineVer)');
-		}
-		request.onError = msg -> Log.error('Update Check Error: $msg');
-		request.request();
-
-		MusicState.switchState(new TitleState(), true, true);
+		MusicState.switchState(Settings.saved ? new TitleState() : new AccessibilityState());
 	}
 }

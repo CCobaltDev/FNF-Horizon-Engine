@@ -1,23 +1,39 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 package horizon.backend;
 
 class MusicMenuState extends MusicState
 {
 	var curSelected:Int = 0;
-	var menuOptions:Array<FlxSprite> = [];
+	var menuOptions:FlxTypedGroup<FlxSprite>;
 
 	var menuCam:FlxCamera;
 	var optionsCam:FlxCamera;
 	var otherCam:FlxCamera;
 
 	var menuFollow:FlxObject;
-	var optionsFollow:FlxObject;
+	var optionFollow:FlxObject;
 
 	var bg:FlxSprite;
 
 	var customInput:Bool = false;
 	var setupCams:Bool = true;
 
-	public override function create():Void
+	override function create()
 	{
 		if (setupCams)
 		{
@@ -25,55 +41,53 @@ class MusicMenuState extends MusicState
 			optionsCam = Create.camera();
 			otherCam = Create.camera();
 			menuFollow = new FlxObject(FlxG.width * .5, FlxG.height * .5);
-			optionsFollow = new FlxObject(FlxG.width * .5, FlxG.height * .5);
+			optionFollow = new FlxObject(FlxG.width * .5, FlxG.height * .5);
 			menuCam.follow(menuFollow, LOCKON, .1);
-			optionsCam.follow(optionsFollow, LOCKON, .15);
+			optionsCam.follow(optionFollow, LOCKON, .15);
 			bopCams.push(menuCam);
 			bopCams.push(optionsCam);
 		}
 
 		super.create();
 
+		add(menuOptions = new FlxTypedGroup<FlxSprite>());
+
 		if (!customInput)
 		{
-			Controls.onPress(Settings.keybinds['ui_down'], () -> if (!transitioningOut) changeSelection(1));
-			Controls.onPress(Settings.keybinds['ui_up'], () -> if (!transitioningOut) changeSelection(-1));
-			Controls.onPress(Settings.keybinds['accept'], () -> if (!transitioningOut) exitState());
-			Controls.onPress(Settings.keybinds['back'], () -> if (!transitioningOut) returnState());
+			Controls.onPress(Settings.keybinds['ui_down'], () -> if (!leaving) changeSelection(1));
+			Controls.onPress(Settings.keybinds['ui_up'], () -> if (!leaving) changeSelection(-1));
+			Controls.onPress(Settings.keybinds['accept'], () -> if (!leaving) exitState());
+			Controls.onPress(Settings.keybinds['back'], () -> if (!leaving) returnState());
 		}
 	}
 
-	public override function update(elapsed:Float):Void
+	override function destroy()
 	{
-		if (FlxG.sound.music != null && FlxG.sound.music.volume < .8)
-			FlxG.sound.music.volume += .5 * elapsed;
-		super.update(elapsed);
-	}
-
-	public override function destroy():Void
-	{
-		menuFollow.destroy();
-		optionsFollow.destroy();
+		if (setupCams)
+		{
+			menuFollow.destroy();
+			optionFollow.destroy();
+		}
 		super.destroy();
 	}
 
-	public function changeSelection(change:Int):Void
+	function changeSelection(change:Int = 0):Void
 	{
 		if (change != 0)
-			FlxG.sound.play(Path.audio('scroll'), .7);
+			FlxG.sound.play(Assets.audio('scroll'), .7);
 
 		curSelected = (curSelected + change + menuOptions.length) % menuOptions.length;
 	}
 
-	public function exitState():Void
+	function exitState():Void
 	{
-		transitioningOut = true;
-		FlxG.sound.play(Path.audio('confirm'), .7);
+		leaving = true;
+		FlxG.sound.play(Assets.audio('confirm'), .7);
 	}
 
-	public function returnState():Void
+	function returnState():Void
 	{
-		transitioningOut = true;
-		FlxG.sound.play(Path.audio('cancel'), .7);
+		leaving = true;
+		FlxG.sound.play(Assets.audio('confirm'), .7);
 	}
 }

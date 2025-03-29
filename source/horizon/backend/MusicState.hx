@@ -1,32 +1,55 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 package horizon.backend;
 
+import flixel.FlxState;
 import flixel.addons.transition.FlxTransitionableState;
+import flixel.util.FlxDestroyUtil;
 
 class MusicState extends FlxTransitionableState
 {
-	var transitioningOut:Bool = false;
+	var curStep(get, never):Int;
+	var curBeat(get, never):Int;
+	var curMeasure(get, never):Int;
+
+	static var bopZoom:Float = 1.035;
+	static var zoomTarget:Float = 1;
 
 	var bopCams:Array<FlxCamera> = [];
-	var bopZoom:Float = 1.035;
-	var bop:Bool = true;
 	var zoom:Bool = true;
-	var targetZoom:Float = 1;
-
-	var curStep(get, set):Int;
-	var curBeat(get, set):Int;
-	var curMeasure(get, set):Int;
+	var bop:Bool = true;
+	var leaving:Bool = false;
 
 	function onStep():Void {}
 
 	function onBeat():Void
-		if (!transitioningOut && bop)
+	{
+		if (!leaving && bop)
 			for (cam in bopCams)
 				cam.zoom = bopZoom;
+	}
 
-	public override function create():Void
+	function onMeasure():Void {}
+
+	public override function create()
 	{
 		Conductor.stepSignal.add(onStep);
 		Conductor.beatSignal.add(onBeat);
+		Conductor.measureSignal.add(onMeasure);
 		bopCams.push(FlxG.camera);
 		super.create();
 	}
@@ -35,16 +58,16 @@ class MusicState extends FlxTransitionableState
 	{
 		if (zoom)
 			for (cam in bopCams)
-				cam.zoom = FlxMath.lerp(cam.zoom, targetZoom, FlxMath.bound(elapsed * 3.25, 0, 1));
+				cam.zoom = Util.fpsLerp(cam.zoom, zoomTarget, 5);
 		super.update(elapsed);
 	}
 
 	public override function destroy():Void
 	{
-		bopCams = [];
+		bopCams = FlxDestroyUtil.destroyArray(bopCams);
 		Conductor.stepSignal.remove(onStep);
 		Conductor.beatSignal.remove(onBeat);
-
+		Conductor.measureSignal.remove(onMeasure);
 		super.destroy();
 	}
 
@@ -53,25 +76,16 @@ class MusicState extends FlxTransitionableState
 		FlxTransitionableState.skipNextTransIn = skipTransIn;
 		FlxTransitionableState.skipNextTransOut = skipTransOut;
 		FlxG.switchState(() -> state);
-		if (Constants.verbose)
-			Log.info('State Switch: \'${Type.getClassName(Type.getClass(state)).replace('horizon.', '')}\'');
+		if (Globals.verboseLogging)
+			Log.info('State Switch: ${Type.getClassName(Type.getClass(state)).split('.').pop()}');
 	}
 
-	@:noCompletion @:keep inline function get_curStep():Int
+	@:noCompletion inline function get_curStep():Int
 		return Conductor.curStep;
 
-	@:noCompletion @:keep inline function get_curBeat():Int
+	@:noCompletion inline function get_curBeat():Int
 		return Conductor.curBeat;
 
-	@:noCompletion @:keep inline function get_curMeasure():Int
+	@:noCompletion inline function get_curMeasure():Int
 		return Conductor.curMeasure;
-
-	@:noCompletion @:keep inline function set_curStep(val:Int):Int
-		return Conductor.curStep = val;
-
-	@:noCompletion @:keep inline function set_curBeat(val:Int):Int
-		return Conductor.curBeat = val;
-
-	@:noCompletion @:keep inline function set_curMeasure(val:Int):Int
-		return Conductor.curMeasure = val;
 }

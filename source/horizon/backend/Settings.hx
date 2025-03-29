@@ -1,3 +1,19 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 package horizon.backend;
 
 import flixel.input.keyboard.FlxKey;
@@ -12,12 +28,11 @@ class Settings
 		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
 	];
 
-	static var downScroll:Bool = false;
-	static var middleScroll:Bool = false;
+	static var downscroll:Bool = false;
+	static var middlescroll:Bool = false;
 	static var ghostTapping:Bool = true;
 	static var safeFrames:Int = 10;
-	static var hitWindows:Array<Float> = [30, 90, 135, 160];
-	static var autoPause:Bool = true;
+	static var hitWindows:Array<Float> = [45, 90, 135, 160];
 
 	static var opponentStrums:Bool = true;
 	static var comboOffsets:Array<Float> = [0, 0];
@@ -26,13 +41,12 @@ class Settings
 
 	static var antialiasing:Bool = true;
 	static var framerate:Int = 0;
-	static var gpuTextures:Bool = true;
-	static var shaders:Bool = true;
+	static var gpuCaching:Bool = true; // I'm aware that this is a misnomer. -Cobalt
+	static var streamedAudio:Bool = true;
 
-	static var accessibilityConfirmed:Bool = false;
 	static var flashingLights:Bool = true;
 	static var reducedMotion:Bool = false;
-	static var lowQuality:Bool = false;
+	static var enableShaders:Bool = true;
 
 	static var keybinds:Map<String, Array<FlxKey>> = [
 		'note_left' => [A, LEFT],
@@ -47,20 +61,15 @@ class Settings
 		'back' => [BACKSPACE, ESCAPE],
 		'pause' => [ENTER, ESCAPE],
 		'reset' => [R],
-		'volume_increase' => [PLUS, NUMPADPLUS],
-		'volume_decrease' => [MINUS, NUMPADMINUS],
+		'volume_up' => [PLUS, NUMPADPLUS],
+		'volume_down' => [MINUS, NUMPADMINUS],
 		'volume_mute' => [P, NUMPADMULTIPLY],
 		'debug' => [LBRACKET, RBRACKET],
 	];
 
-	static var savedMods:Map<String, SavedModData> = [];
 	static var fullscreen:Bool = false;
-}
-
-@:publicFields typedef SavedModData =
-{
-	var enabled:Bool;
-	var ID:Int;
-	var weeks:Map<String, {score:Int, accuracy:Float, locked:Bool}>;
-	var songs:Map<String, {score:Int, accuracy:Float}>;
+	static var autoPause:Bool = true;
+	static var songOffset:Float = 0;
+	static var inputOffset:Float = 0;
+	static var saved:Bool = false;
 }

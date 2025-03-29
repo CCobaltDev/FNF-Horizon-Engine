@@ -1,68 +1,92 @@
+/*
+	Copyright 2025 CCobaltDev
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+ */
+
 package horizon.backend;
 
-import lime.app.Application;
+import openfl.system.System;
 
+@:publicFields
 class OSUtil
 {
 	#if windows
-	public static function setDPIAware():Void
+	static function setDPIAware():Void
 	{
-		#if cpp
 		if (!Windows.setDPIAware())
-			Log.warn('Failed to set DPI Awareness');
-		#else
-		Log.warn('setDPIAware is not supported on this platform');
-		#end
+			Log.error("Failed to make process DPI-aware");
 	}
 
-	public static function toggleWindowDarkMode():Void
+	static function setWindowDarkMode(windowTitle:String, value:Bool):Void
 	{
-		#if cpp
-		if (!Windows.toggleWindowDarkMode(Application.current.window.title))
-			Log.warn('Failed to toggle Dark Mode');
-		#else
-		Log.warn('setWindowDarkMode is not supported on this platform');
-		#end
+		if (!Windows.setWindowDarkMode(windowTitle, value))
+			Log.error('Failed to set window $windowTitle ${value ? "dark" : "light"}');
 	}
 	#end
+
+	static function getMemory():Float
+	{
+		return #if windows Windows #else Linux #end.getMemory() ?? System.totalMemoryNumber;
+	}
 }
 
-// Based on CDEV Engine's Windows.hx
-#if cpp
+@:publicFields
 #if windows
 @:cppInclude('windows.h')
 @:cppInclude('dwmapi.h')
-@:buildXml('
-<target id="haxe">
-  <lib name="dwmapi.lib" />
-</target>
-')
-#end
-#end
-@:publicFields
+@:cppInclude('psapi.h')
+@:buildXml('<target id="haxe">
+	<lib name="dwmapi.lib" />
+	<lib name="psapi.lib" />
+</target>')
 private class Windows
 {
-	@:functionCode('return SetProcessDPIAware();')
-	static function setDPIAware():Bool
-		return false;
+	@:functionCode('PROCESS_MEMORY_COUNTERS_EX2 memCounters;
+	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&memCounters, sizeof(memCounters));
+	return memCounters.PrivateWorkingSetSize;')
+	static function getMemory():Null<Float>
+	{
+		return null;
+	}
 
-	@:functionCode('
-		int darkMode = 0;
+	@:functionCode('int darkMode = (value ? 1 : 0);
 		HWND window = FindWindowA(NULL, windowTitle.c_str());
 		if (window == NULL)
 			window = FindWindowExA(GetActiveWindow(), NULL, NULL, windowTitle.c_str());
-		if (window != NULL)
-		{
-			if (DwmGetWindowAttribute(window, 19, &darkMode, sizeof(darkMode)) != S_OK)
-				DwmGetWindowAttribute(window, 20, &darkMode, sizeof(darkMode));
 
-			darkMode ^= 1;
-			
-			if (DwmSetWindowAttribute(window, 19, &darkMode, sizeof(darkMode)) != S_OK)
+		if (window != NULL) {
+			if (DwmSetWindowAttribute(window, 19, &darkMode, sizeof(darkMode)) != S_OK) {
 				return DwmSetWindowAttribute(window, 20, &darkMode, sizeof(darkMode)) == S_OK;
-			else return TRUE;
-		}else return FALSE;
-	')
-	static function toggleWindowDarkMode(windowTitle:String):Bool
+			}else return TRUE;
+		}else return FALSE;')
+	static function setWindowDarkMode(windowTitle:String, value:Bool):Bool
+	{
 		return false;
+	}
+
+	@:functionCode('return SetProcessDPIAware();')
+	static function setDPIAware():Bool
+	{
+		return false;
+	}
 }
+#else
+private class Linux
+{
+	static function getMemory():Null<Float>
+	{
+		return null;
+	}
+}
+#end

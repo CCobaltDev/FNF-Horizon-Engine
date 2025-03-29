@@ -14,18 +14,29 @@
 	limitations under the License.
  */
 
-package source;
+package horizon.modding;
 
-import sys.FileSystem;
-import sys.io.File;
-
-class Postbuild
+typedef Chart =
 {
-	public static function main():Void
-	{
-		if (!FileSystem.exists('.build'))
-			File.saveContent('.build', '0');
-		else
-			File.saveContent('.build', Std.string(Std.parseInt(File.getContent('.build')) + 1));
-	}
+	var notes:Array<NoteJSON>;
+	var events:Array<EventJSON>;
+	var bpm:Float;
+	var scrollSpeed:Array<Float>;
+	var characters:Array<String>;
+}
+
+typedef NoteJSON =
+{
+	var data:Int;
+	var time:Float;
+	@:optional var length:Float;
+	@:optional var type:String;
+	@:optional var mult:Float;
+}
+
+typedef EventJSON =
+{
+	var name:String;
+	var time:Float;
+	var value:Array<Dynamic>;
 }
