@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Horizon Engine is archived. The project is dead.
+
 <p align="center">
   <img src="art/logo.png" width="448"/>
   <h1 align="center">Friday Night Funkin': Horizon Engine</h1>
