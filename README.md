@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> Horizon Engine is archived. The project is dead.
+> This branch is outdated
 
 <p align="center">
   <img src="art/logo.png" width="448"/>
