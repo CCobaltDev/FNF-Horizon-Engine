@@ -102,7 +102,7 @@ class Alphabet extends FlxSpriteGroup
 					animName += ' normal';
 				animName = animName.toLowerCase();
 
-				var char = alphabetGroup.recycle(FlxSprite, Create.atlas.bind(0, 0, Assets.atlas('alphabet')));
+				var char = alphabetGroup.recycle(FlxSprite, Create.atlas.bind(0, 0, Assets.atlas('alphabet'), null, 1));
 				if (char.animation.exists('idle'))
 					char.animation.remove('idle');
 				char.animation.addByPrefix('idle', animName, 24);

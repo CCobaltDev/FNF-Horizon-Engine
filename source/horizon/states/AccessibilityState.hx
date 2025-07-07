@@ -90,7 +90,7 @@ class AccessibilityState extends MusicMenuState
 			if (Settings.flashingLights)
 				FlxFlicker.flicker(menuOptions.members[curSelected], 0.5, 0.04, false, true, flicker -> MusicState.switchState(new TitleState()));
 			else
-				FlxTimer.wait(0.5, MusicState.switchState.bind(new TitleState()));
+				FlxTimer.wait(0.5, MusicState.switchState.bind(new TitleState(), false, false));
 		}
 		else
 		{

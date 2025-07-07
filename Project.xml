@@ -44,7 +44,7 @@
 	<haxelib name="flixel-waveform" />
 	<haxelib name="hxdiscord_rpc" if="DISCORD_RPC" />
 	<haxelib name="hxvlc" if="VIDEO_SUPPORT" />
-	<haxelib name="hxcpp-debug-server" if="debug" />
+	<!-- <haxelib name="hxcpp-debug-server" if="debug" /> -->
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 

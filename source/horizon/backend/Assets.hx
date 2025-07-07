@@ -48,20 +48,23 @@ class Assets
 		FlxG.signals.postStateSwitch.add(clearUnusedMemory);
 	}
 
-	static function clearMemory():Void @:privateAccess {
-		for (key in FlxG.bitmap._cache.keys())
-			if (!imageCache.exists(key) && !exclusions.contains(key))
-				destroyGraphic(FlxG.bitmap.get(key));
+	static function clearMemory():Void
+	{
+		@:privateAccess {
+			for (key in FlxG.bitmap._cache.keys())
+				if (!imageCache.exists(key) && !exclusions.contains(key))
+					destroyGraphic(FlxG.bitmap.get(key));
 
-		for (key in audioCache.keys())
-			if ((!usageTracker.exists(key) || usageTracker[key] == 0) && !exclusions.contains(key))
-			{
-				openfl.Assets.cache.clear(key);
-				audioCache[key].close();
-				audioCache.remove(key);
-			}
+			for (key in audioCache.keys())
+				if ((!usageTracker.exists(key) || usageTracker[key] == 0) && !exclusions.contains(key))
+				{
+					openfl.Assets.cache.clear(key);
+					audioCache[key].close();
+					audioCache.remove(key);
+				}
 
-		usageTracker.clear();
+			usageTracker.clear();
+		}
 	}
 
 	static function clearUnusedMemory():Void

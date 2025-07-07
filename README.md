@@ -1,6 +1,3 @@
-> [!IMPORTANT]
-> Horizon Engine is archived. The project is dead.
-
 <p align="center">
   <img src="art/logo.png" width="448"/>
   <h1 align="center">Friday Night Funkin': Horizon Engine</h1>
@@ -14,7 +11,7 @@
 
 ## Compilation Instructions
 
-1. Install Haxe 4.3.6 (and install MSVC if on Windows)
+1. Install Haxe Nightly (and install MSVC if on Windows)
 
 > [!NOTE]
 > You may need to install extra packages on Linux to compile lime, see [here](https://github.com/openfl/lime)
@@ -24,10 +21,9 @@
 ```bash
 haxelib install hxpkg
 haxelib run hxpkg install
-haxelib run lime rebuild cpp -release
+haxelib run lime rebuild cpp
+haxelib run lime build cpp
 ```
-
-3. Run the build script in `build` (e.g `build\windows.bat` for Windows)
 
 ## Special Thanks
 
@@ -41,6 +37,5 @@ haxelib run lime rebuild cpp -release
 - [CCobaltDev](https://ccobaltdev.github.io) - Main Developer
 - [Plank](https://plankdev.carrd.co/) - Main Artist
 - crowplexus and nebulazorua - Alt+Enter cancel + F11 fullscreen
-- [superpowers04](https://github.com/superpowers04) - Safer FlxGame
 - [CoreCat](https://corecathx.github.io/) - Utility functions, Device Info code, Windows.hx code
-- [Sword352/FnF-Eternal](https://github.com/Sword352/FnF-Eternal) - Tiled Sprite
+- [Sword352](https://github.com/Sword352) - Tiled Sprite

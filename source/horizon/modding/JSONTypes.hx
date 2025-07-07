@@ -16,6 +16,15 @@
 
 package horizon.modding;
 
+typedef TitleJSON =
+{
+	bpm:Null<Float>,
+	timeSignature:Null<String>,
+	logoPosition:Array<Int>,
+	enterPosition:Array<Int>,
+	dancerPosition:Array<Int>
+}
+
 typedef Chart =
 {
 	var notes:Array<NoteJSON>;

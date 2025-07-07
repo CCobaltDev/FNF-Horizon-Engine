@@ -138,8 +138,7 @@ class Conductor
 
 	@:noCompletion static function set_song(val:FlxSound):FlxSound
 	{
-		if (val != null)
-			val.onComplete = reset;
+		val?.onComplete = reset;
 		return song = val;
 	}
 

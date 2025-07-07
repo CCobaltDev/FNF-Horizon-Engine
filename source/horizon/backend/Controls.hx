@@ -67,10 +67,25 @@ class Controls
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, event ->
 		{
+			if (!keyTracker[event.keyCode])
+			{
+				pressed.push(event.keyCode);
+				keyTracker[event.keyCode] = true;
+				pressSignals[event.keyCode]?.dispatch();
+			}
+		});
+
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, event ->
+		{
+			pressed.remove(event.keyCode);
+			keyTracker[event.keyCode] = false;
+			releaseSignals[event.keyCode]?.dispatch();
+		});
+
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, event ->
+		{
 			if (event.keyCode == FlxKey.ENTER && !keyTracker[ENTER])
 			{
-				keyTracker[ENTER] = true;
-
 				// I stole this from swordcube
 				// Credits go to nebulazorua and crowplexus
 				if (event.altKey)
@@ -93,26 +108,10 @@ class Controls
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, event ->
 		{
-			if (event.keyCode == FlxKey.ENTER && keyTracker[ENTER])
-				keyTracker[ENTER] = false;
 			if (event.keyCode == FlxKey.F11 && keyTracker[F11])
 				keyTracker[F11] = false;
 			if (event.keyCode == FlxKey.F3 && keyTracker[F3])
 				keyTracker[F3] = false;
-		});
-
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, event -> if (!keyTracker[event.keyCode])
-		{
-			keyTracker[event.keyCode] = true;
-			pressed.push(event.keyCode);
-			pressSignals[event.keyCode]?.dispatch();
-		});
-
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, event ->
-		{
-			keyTracker[event.keyCode] = false;
-			pressed.remove(event.keyCode);
-			releaseSignals[event.keyCode]?.dispatch();
 		});
 
 		if (Globals.verboseLogging)
